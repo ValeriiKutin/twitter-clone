@@ -10,7 +10,7 @@ const News = () => {
       .then((res) => res.json())
       .then((data) => {
         setNews(data.articles);
-        console.log(data);
+        // console.log(data);
       });
   }, []);
 
