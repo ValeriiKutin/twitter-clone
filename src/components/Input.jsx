@@ -36,7 +36,6 @@ const Input = () => {
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, selectedFile);
 
-    console.log(selectedFile);
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -52,7 +51,6 @@ const Input = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log(uploadTask.snapshot.ref);
           setImageFileUrl(downloadURL);
           setImageFileUploading(false);
         });
@@ -75,11 +73,13 @@ const Input = () => {
       text: text,
       profileImg: session.user.image,
       timestamp: serverTimestamp(),
+      image: imageFileUrl,
     });
     setPostLoading(false);
     setText("");
     setImageFileUrl(false);
     setSelectedFile(false);
+    location.reload();
   };
 
   if (!session) return null;
