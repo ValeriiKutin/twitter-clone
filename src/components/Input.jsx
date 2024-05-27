@@ -3,7 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { HiOutlinePhotograph } from "react-icons/hi";
-import { app } from "../firebase";
+import { app, db } from "../firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import {
   getStorage,
   ref,
@@ -17,6 +18,8 @@ const Input = () => {
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageFileUploading, setImageFileUploading] = useState(false);
+  const [text, setText] = useState("");
+  const [postLoading, setPostLoading] = useState(false);
 
   const addImageToPost = (e) => {
     const file = e.target.files[0];
@@ -63,6 +66,22 @@ const Input = () => {
     }
   }, [selectedFile]);
 
+  const handleSubmit = async () => {
+    setPostLoading(true);
+    const docRef = await addDoc(collection(db, "posts"), {
+      uid: session.user.uid,
+      name: session.user.name,
+      username: session.user.username,
+      text: text,
+      profileImg: session.user.image,
+      timestamp: serverTimestamp(),
+    });
+    setPostLoading(false);
+    setText("");
+    setImageFileUrl(false);
+    setSelectedFile(false);
+  };
+
   if (!session) return null;
   return (
     <div className="flex border-b border-gray-200 p-3 space-x-3 w-full">
@@ -76,12 +95,16 @@ const Input = () => {
           className="w-full border-none outline-none tracking-wide min-h-[50px] text-gray-700"
           placeholder="Whats happening"
           rows={2}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
         ></textarea>
         {selectedFile && (
           <img
             src={imageFileUrl}
             alt="image"
-            className="w-full max-h-[250px] object-cover cursor-pointer"
+            className={`w-full max-h-[250px] object-cover cursor-pointer ${
+              imageFileUploading ? "animate-pulse" : ""
+            }`}
           />
         )}
         <div className="flex items-center justify-between pt-2.5">
@@ -97,8 +120,9 @@ const Input = () => {
             hidden
           />
           <button
-            disabled
+            disabled={text.trim() === "" || postLoading || imageFileUploading}
             className="bg-blue-400 text-white px-4 py-1.5 rounded-full font-bold shadow-md hover:brightness-95 disabled:opacity-50"
+            onClick={handleSubmit}
           >
             Post
           </button>
