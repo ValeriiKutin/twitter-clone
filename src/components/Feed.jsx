@@ -12,7 +12,6 @@ const Feed = async () => {
   querySnapshot.forEach((doc) => {
     data.push({ ...doc.data(), id: doc.id });
   });
-  console.log(data);
   return (
     <div>
       {data.map((post) => (

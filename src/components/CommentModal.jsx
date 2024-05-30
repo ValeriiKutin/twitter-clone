@@ -31,7 +31,6 @@ const CommentModal = () => {
       const unsubscribe = onSnapshot(postRef, (snapshot) => {
         if (snapshot.exists()) {
           setPost(snapshot.data());
-          console.log(snapshot.data());
         } else {
           console.log("No such document!");
         }
